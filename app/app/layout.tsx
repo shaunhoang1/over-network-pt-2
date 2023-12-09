@@ -54,35 +54,40 @@ export default async function RootLayout({
     @param form - FormData object containing the username and name of the new user
   */
   const setUpProfile = async (form: FormData) => {
+    "use server";
     /*
-      TODO #1: Indicate that this function is a server function by adding 'use server';
+      Create the new User object
     */
+    class User {
+      username: string;
+      name: string;
+      privateKey: string;
 
-    /*
-      TODO #2: Create the new User object with a username, name, and privateKey
-    
-      HINT: 
-        - 
-        - Use the newPrivateKey() function to generate a new private key for the user
-    */
-
+      constructor(username: string, name: string) {
+          this.username = username;
+          this.name = name;
+          this.privateKey = newPrivateKey();
+      }
+    }
     /* 
-      TODO #3: Store the user in the local account cache
-
-      HINT: Use the storeUser() function to store the user
+      Store the user in the local account cache
     */
-
-    /* 
-      TODO #4: Set up a try catch block to create the user's profile and log them in if successful.
-
-      HINT: 
-        - Use the createProfile() and login() functions to create the user's 
-          profile and log them in
-        
-        - In the catch block, use the dropUser() function to remove the user 
-          from the local account cache. Then, throw the error to be caught by the catch block in
-          the loginWindow.tsx file.
-    */
+    const username = form.get('username');
+    const name = form.get('name');
+    if (username && name) {
+      const newUser = new User(username.toString(), name.toString());
+      storeUser(newUser);
+      /* 
+        Create the user's profile and log them in if successful.
+      */
+      try {
+        await createProfile(newUser);
+        await login(newUser);
+      } catch (error) {
+        dropUser(newUser);
+        throw error;
+      }
+    }
   }
 
   if (!me) {

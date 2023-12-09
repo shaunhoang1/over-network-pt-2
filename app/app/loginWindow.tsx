@@ -7,11 +7,7 @@ export default function LoginWindow(
     setUpProfile:  (form: FormData) => Promise<void>;
   }
 ) {
-
-  /* 
-    TODO #1: Add a state variable to store the current error message
-  */
-
+  const [error, setError] = useState<string>('');
   /*
     This function is called to set up the profile of the new user. It is called
     when a user submits the login form. It takes a FormData object as an argument,
@@ -19,18 +15,18 @@ export default function LoginWindow(
     @param form - FormData object containing the username and name of the new user
   */
   const onSubmit = async (form: FormData) => {
-    /* 
-      TODO #3: Set the error state to an empty string
-    */
-
-    /* 
-      TODO #4: Set up a try catch block to call the setUpProfile() function and set the error state
-      if an error is thrown
-
-      HINT: 
-        - Use the setUpProfile() function to set up the user's profile and log them in
-        - In the catch block, set the error state to the error message (error.message)
-    */
+      setError('');
+        try {
+          await setUpProfile(form);
+        } catch (error) {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else if (typeof error === 'string') {
+            setError(error);
+          } else {
+            setError('An unknown error occurred.');
+          }
+        }
   }
 
   return (
@@ -62,13 +58,8 @@ export default function LoginWindow(
           >
             Create Account
           </button>
-          <p className="text-red-500">
-            {/* 
-              TODO #2: Display the error message if it is not an empty string using the error state variable
-            */}
-            {
-              "PLACEHOLDER"
-            }
+          <p className='text-red-500'>
+            {error}
           </p>
         </div>
       </div>
